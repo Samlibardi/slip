@@ -161,6 +161,7 @@ window['Slip'] = (function(){
         this.options.minimumSwipeVelocity = options.minimumSwipeVelocity || 1;
         this.options.minimumSwipeTime = options.minimumSwipeTime || 110;
         this.options.ignoredElements = options.ignoredElements || [];
+        this.options.minimumDistance = Math.abs(options.minimumDistance || 20);
 
         if (!Array.isArray(this.options.ignoredElements)) throw new Error("ignoredElements must be an Array");
 
@@ -271,7 +272,7 @@ window['Slip'] = (function(){
                     onMove: function() {
                         var move = this.getAbsoluteMovement();
 
-                        if (move.x > 20 && move.y < Math.max(100, this.target.height)) {
+                        if (move.x > this.options.minimumDistance && move.y < Math.max(100, this.target.height)) {
                             if (this.dispatch(this.target.originalTarget, 'beforeswipe', {directionX: move.directionX, directionY: move.directionY})) {
                                 this.setState(this.states.swipe);
                                 return false;
@@ -279,7 +280,7 @@ window['Slip'] = (function(){
                                 this.setState(this.states.idle);
                             }
                         }
-                        if (move.y > 20) {
+                        if (move.y > this.options.minimumDistance) {
                             if (!this.delayed && this.dispatch(this.target.originalTarget, 'beforereorder')) {
                                 this.setState(this.states.reorder);
                                 return false;
