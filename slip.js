@@ -230,6 +230,8 @@ window['Slip'] = (function(){
 
         canPreventScrolling: false,
 
+        waitForDelay: false,
+
         states: {
             idle: function idleStateInit() {
                 this.removeMouseHandlers();
@@ -249,11 +251,8 @@ window['Slip'] = (function(){
                 this.target.node.style.willChange = transformCSSPropertyName;
                 this.target.node.style[transitionJSPropertyName] = '';
 
-                if (!this.dispatch(this.target.originalTarget, 'beforewait')) {
-                    if (this.dispatch(this.target.originalTarget, 'beforereorder')) {
-                        this.setState(this.states.reorder);
-                    }
-                } else {
+                if (this.dispatch(this.target.originalTarget, 'beforewait')) {
+                    this.waitForDelay = true;
                     var holdTimer = setTimeout(function(){
                         var move = this.getAbsoluteMovement();
                         if (this.canPreventScrolling && move.x < 15 && move.y < 25) {
@@ -281,6 +280,10 @@ window['Slip'] = (function(){
                             }
                         }
                         if (move.y > 20) {
+                            if (!this.delayed && this.dispatch(this.target.originalTarget, 'beforereorder')) {
+                                this.setState(this.states.reorder);
+                                return false;
+                            }
                             this.setState(this.states.idle);
                         }
 
